@@ -1,13 +1,6 @@
-import plotly.express as px
 # Load data and compute static values
-from shinywidgets import render_plotly
-import requests
-from pathlib import Path
-
 from shiny import ui, render, App, reactive
-import xarray as xr
-import plotly.express as px
-import plotly.graph_objects as go
+
 
 app_ui = ui.page_auto(
     ui.h1("ENSO Teleconnection Maps"),
@@ -43,6 +36,29 @@ app_ui = ui.page_auto(
          "OND": "October-November-December"}
     ),
 
+    ui.input_select(
+        "region",  
+        "Select region below:", 
+        ['Africa', 'tight']
+    ),
+
+    ui.input_slider(
+        "enso_index_lower",  
+        "Select ENSO Index lower bound below:", 
+        max=3,
+        min=-2,
+        step=0.5,
+        value=1.5
+    ),
+
+    ui.input_slider(
+        "enso_index_upper",  
+        "Select ENSO Index upper bound below:", 
+        max=3,
+        min=-2,
+        step=0.5,
+        value=1.5
+    ),
 
     ui.card(
         ui.card_header("P-Value"),
@@ -52,6 +68,11 @@ app_ui = ui.page_auto(
     ui.card(
         ui.card_header("Seasonal"),
         ui.output_ui("seasonalmap", height="100%")
+    ),
+
+    ui.card(
+        ui.card_header("Anomaly"),
+        ui.output_ui("anomalymap", height="100%")
     ),
 )
 
@@ -80,5 +101,14 @@ def server(input, output, session):
         #print(Path(__file__).parent /'static'/'ENSO Teleconnection Maps'/f'{input.variable()}'/f"prob_{input.oscillation()}_season_{input.season()}.png")
         #img = {"src": f"https://raw.githubusercontent.com/blackteacatsu/fall_2024_trp_proj/main/scripts/for_kris/outcome/map/{input.variable()}/prob_{input.oscillation()}_season_{input.season()}.png", "width": "100%"}  
         return ui.tags.img(src=f"https://raw.githubusercontent.com/blackteacatsu/fall_2024_trp_proj/main/scripts/for_kris/outcome/map/{input.variable()}/prob_{input.oscillation()}_season_{input.season()}.png", width = "100%")
+
+    @render.ui
+    #@render.image(delete_file=True)
+    def anomalymap():
+        #print(input.season())
+        #print(Path(__file__).parent /'static'/'ENSO Teleconnection Maps'/f'{input.variable()}'/f"prob_{input.oscillation()}_season_{input.season()}.png")
+        #img = {"src": f"https://raw.githubusercontent.com/blackteacatsu/fall_2024_trp_proj/main/scripts/for_kris/outcome/map/{input.variable()}/prob_{input.oscillation()}_season_{input.season()}.png", "width": "100%"}  
+        return ui.tags.img(src=f"https://raw.githubusercontent.com/blackteacatsu/fall_2024_trp_proj/main/scripts/for_kris/outcome/map/anomaly/{input.variable()}/{input.variable()}_anom_{input.region()}_{input.enso_index_lower()}_enso_{input.enso_index_upper()}.png", width = "100%")
+
 
 app=App(app_ui, server)
